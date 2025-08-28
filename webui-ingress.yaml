@@ -2,11 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: open-webui-ingress
-  #annotations:
-    # Use appropriate annotations for your Ingress controller, e.g., for NGINX:
-    # nginx.ingress.kubernetes.io/rewrite-target: /
+  annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
-  ingressClassName: nginx
   rules:
   - host: open-webui.cluster.dphx.eu
     http:
