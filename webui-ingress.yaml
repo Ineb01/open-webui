@@ -8,6 +8,7 @@ spec:
   tls:
   - hosts:
     - open-webui.cluster.dphx.eu
+    secretName: open-webui-tls
   rules:
   - host: open-webui.cluster.dphx.eu
     http:
