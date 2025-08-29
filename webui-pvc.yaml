@@ -12,3 +12,4 @@ spec:
       storage: 2Gi
   storageClassName: local-path
   volumeMode: Filesystem
+  volumeName: pvc-0c75ab7a-71ae-44b8-8b7e-9f862c06f6ac
