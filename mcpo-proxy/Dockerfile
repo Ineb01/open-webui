@@ -2,8 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install mcpo and mcp-client-sse for SSE support
-RUN pip install --no-cache-dir mcpo mcp-client-sse
+# Install uv for faster package management and mcpo
+RUN pip install --no-cache-dir uv && \
+    uv pip install --system mcpo
 
 # Expose port 8000 for the proxy server
 EXPOSE 8000
@@ -13,4 +14,5 @@ EXPOSE 8000
 ENV MCP_SERVER_URL=https://n8n.cluster.dphx.eu/mcp/my-calendar/sse
 
 # Start mcpo with the SSE client pointing to the n8n MCP server
-CMD uvx mcpo --host 0.0.0.0 --port 8000 -- mcp-client-sse ${MCP_SERVER_URL}
+# Using uvx to run mcp-client-sse which will connect to the SSE endpoint
+CMD ["sh", "-c", "uvx mcpo --host 0.0.0.0 --port 8000 -- uvx mcp-client-sse ${MCP_SERVER_URL}"]
