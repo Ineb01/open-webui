@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcpo-proxy-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcpo-proxy
+  template:
+    metadata:
+      labels:
+        app: mcpo-proxy
+    spec:
+      containers:
+      - name: mcpo-proxy
+        image: ineb01/mcpo-proxy:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        - name: MCP_SERVER_URL
+          value: "https://n8n.cluster.dphx.eu/mcp/my-calendar/sse"
+        livenessProbe:
+          httpGet:
+            path: /docs
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /docs
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5

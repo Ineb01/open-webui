@@ -27,6 +27,10 @@ spec:
         env:
         - name: OLLAMA_BASE_URL
           value: "http://ollama-service.applications.svc.cluster.local:11434"
+        - name: OPENAI_API_BASE_URLS
+          value: "http://mcpo-proxy-service.applications.svc.cluster.local:8000"
+        - name: OPENAI_API_KEYS
+          value: "dummy-key"
         tty: true
         volumeMounts:
         - name: webui-volume
