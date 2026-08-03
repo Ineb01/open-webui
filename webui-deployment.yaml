@@ -24,6 +24,16 @@ spec:
         env:
         - name: OLLAMA_BASE_URL
           value: "http://ollama-service.applications.svc.cluster.local:11434"
+        # Ollama Cloud (gemma4) via its OpenAI-compatible endpoint
+        - name: ENABLE_OPENAI_API
+          value: "true"
+        - name: OPENAI_API_BASE_URLS
+          value: "https://ollama.com/v1"
+        - name: OPENAI_API_KEYS
+          valueFrom:
+            secretKeyRef:
+              name: ollama-cloud
+              key: api-key
         tty: true
         volumeMounts:
         - name: webui-volume
