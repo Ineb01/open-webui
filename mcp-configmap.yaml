@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-dummy-source
+data:
+  server.py: |
+    """A minimal MCP server with offline-only tools, used to verify tool calling."""
+
+    import os
+    import socket
+    from datetime import datetime, timezone
+
+    from mcp.server.fastmcp import FastMCP
+
+    mcp = FastMCP(
+        "dummy-tools",
+        host="0.0.0.0",
+        port=8000,
+        stateless_http=True,
+    )
+
+
+    @mcp.tool()
+    def add(a: float, b: float) -> float:
+        """Add two numbers and return the sum."""
+        return a + b
+
+
+    @mcp.tool()
+    def reverse_text(text: str) -> str:
+        """Reverse the characters of the given text."""
+        return text[::-1]
+
+
+    @mcp.tool()
+    def word_count(text: str) -> dict:
+        """Count the characters, words and lines in the given text."""
+        return {
+            "characters": len(text),
+            "words": len(text.split()),
+            "lines": len(text.splitlines()) or (1 if text else 0),
+        }
+
+
+    @mcp.tool()
+    def server_info() -> dict:
+        """Report the pod this MCP server runs in and its current UTC time."""
+        return {
+            "hostname": socket.gethostname(),
+            "namespace": os.getenv("POD_NAMESPACE", "unknown"),
+            "utc_time": datetime.now(timezone.utc).isoformat(),
+        }
+
+
+    if __name__ == "__main__":
+        mcp.run(transport="streamable-http")

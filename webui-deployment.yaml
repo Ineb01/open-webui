@@ -65,6 +65,16 @@ spec:
           value: "true"
         - name: OAUTH_GROUPS_CLAIM
           value: "groups"
+        # Dummy MCP tool server (streamable HTTP)
+        - name: TOOL_SERVER_CONNECTIONS
+          value: >-
+            [{"type": "mcp",
+            "url": "http://mcp-dummy-service.applications.svc.cluster.local:8000/mcp",
+            "auth_type": "none",
+            "key": "",
+            "info": {"id": "dummy-tools", "name": "Dummy Tools",
+            "description": "Offline demo tools: add, reverse_text, word_count, server_info"},
+            "config": {"enable": true, "access_grants": []}}]
         tty: true
         volumeMounts:
         - name: webui-volume
