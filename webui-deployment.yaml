@@ -34,6 +34,30 @@ spec:
             secretKeyRef:
               name: ollama-cloud
               key: api-key
+        # OIDC single sign-on via Authentik (local login form stays enabled)
+        - name: WEBUI_URL
+          value: "https://open-webui.cluster.dphx.eu"
+        - name: OAUTH_PROVIDER_NAME
+          value: "Authentik"
+        - name: OPENID_PROVIDER_URL
+          value: "https://authentik.cluster.dphx.eu/application/o/openwebui/.well-known/openid-configuration"
+        - name: OPENID_REDIRECT_URI
+          value: "https://open-webui.cluster.dphx.eu/oauth/oidc/login/callback"
+        - name: OPENID_END_SESSION_ENDPOINT
+          value: "https://authentik.cluster.dphx.eu/application/o/openwebui/end-session/"
+        - name: OAUTH_SCOPES
+          value: "openid email profile"
+        - name: OAUTH_CLIENT_ID
+          value: "TStdOhhqSfMEtsg04pKA81rmPacin5Cj5nCIPiVU"
+        - name: OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openwebui-oidc
+              key: client-secret
+        - name: ENABLE_OAUTH_SIGNUP
+          value: "true"
+        - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+          value: "true"
         tty: true
         volumeMounts:
         - name: webui-volume
