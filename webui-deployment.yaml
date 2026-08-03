@@ -58,6 +58,13 @@ spec:
           value: "true"
         - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
           value: "true"
+        # Sync Authentik group membership on every SSO login
+        - name: ENABLE_OAUTH_GROUP_MANAGEMENT
+          value: "true"
+        - name: ENABLE_OAUTH_GROUP_CREATION
+          value: "true"
+        - name: OAUTH_GROUPS_CLAIM
+          value: "groups"
         tty: true
         volumeMounts:
         - name: webui-volume
