@@ -4,35 +4,34 @@ metadata:
   name: mcp-dummy-source
 data:
   server.py: |
-    """A minimal MCP server with offline-only tools, used to verify tool calling."""
+    """A minimal MCP server with offline-only tools, used to verify tool calling.
+
+    Written against the mcp 2.x SDK, where the server class is MCPServer
+    (called FastMCP in 1.x) and the transport options moved into run().
+    """
 
     import os
     import socket
     from datetime import datetime, timezone
 
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server import MCPServer
 
-    mcp = FastMCP(
-        "dummy-tools",
-        host="0.0.0.0",
-        port=8000,
-        stateless_http=True,
-    )
+    server = MCPServer("dummy-tools")
 
 
-    @mcp.tool()
+    @server.tool()
     def add(a: float, b: float) -> float:
         """Add two numbers and return the sum."""
         return a + b
 
 
-    @mcp.tool()
+    @server.tool()
     def reverse_text(text: str) -> str:
         """Reverse the characters of the given text."""
         return text[::-1]
 
 
-    @mcp.tool()
+    @server.tool()
     def word_count(text: str) -> dict:
         """Count the characters, words and lines in the given text."""
         return {
@@ -42,7 +41,7 @@ data:
         }
 
 
-    @mcp.tool()
+    @server.tool()
     def server_info() -> dict:
         """Report the pod this MCP server runs in and its current UTC time."""
         return {
@@ -53,4 +52,10 @@ data:
 
 
     if __name__ == "__main__":
-        mcp.run(transport="streamable-http")
+        server.run(
+            transport="streamable-http",
+            host="0.0.0.0",
+            port=8000,
+            streamable_http_path="/mcp",
+            stateless_http=True,
+        )
