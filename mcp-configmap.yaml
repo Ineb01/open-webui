@@ -6,10 +6,15 @@ data:
   server.py: |
     """A minimal MCP server with offline-only tools, used to verify tool calling.
 
+    The tools are deliberately chosen so that a correct answer proves the model
+    really called the server: either the result cannot be known without asking
+    this pod, or it is externally verifiable.
+
     Written against the mcp 2.x SDK, where the server class is MCPServer
     (called FastMCP in 1.x) and the transport options moved into run().
     """
 
+    import hashlib
     import os
     import socket
     from datetime import datetime, timezone
@@ -18,27 +23,20 @@ data:
 
     server = MCPServer("dummy-tools")
 
-
-    @server.tool()
-    def add(a: float, b: float) -> float:
-        """Add two numbers and return the sum."""
-        return a + b
+    # Scratch state for remember/recall. Lives only as long as this pod, and is
+    # only coherent because the Deployment runs a single replica.
+    _NOTES: dict[str, str] = {}
 
 
     @server.tool()
-    def reverse_text(text: str) -> str:
-        """Reverse the characters of the given text."""
-        return text[::-1]
+    def frobnicate(a: float, b: float) -> float:
+        """Frobnicate two numbers.
 
-
-    @server.tool()
-    def word_count(text: str) -> dict:
-        """Count the characters, words and lines in the given text."""
-        return {
-            "characters": len(text),
-            "words": len(text.split()),
-            "lines": len(text.splitlines()) or (1 if text else 0),
-        }
+        Frobnication is a made-up operation defined only here: it multiplies the
+        two numbers, then adds the first and subtracts the second, i.e.
+        a * b + a - b. There is no way to know this without calling the tool.
+        """
+        return a * b + a - b
 
 
     @server.tool()
@@ -49,6 +47,39 @@ data:
             "namespace": os.getenv("POD_NAMESPACE", "unknown"),
             "utc_time": datetime.now(timezone.utc).isoformat(),
         }
+
+
+    @server.tool()
+    def hash_text(text: str) -> str:
+        """Return the SHA-256 hex digest of the given text."""
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+    @server.tool()
+    def remember(key: str, value: str) -> str:
+        """Store a value under a key so it can be retrieved later with recall."""
+        _NOTES[key] = value
+        return f"Stored {len(value)} characters under '{key}'."
+
+
+    @server.tool()
+    def recall(key: str) -> str:
+        """Retrieve a value previously stored with remember."""
+        if key not in _NOTES:
+            return f"Nothing stored under '{key}'."
+        return _NOTES[key]
+
+
+    @server.tool()
+    def add(a: float, b: float) -> float:
+        """Add two numbers and return the sum."""
+        return a + b
+
+
+    @server.tool()
+    def always_fails() -> str:
+        """Always raise an error. Used to check that tool failures surface in the UI."""
+        raise ValueError("This tool fails on purpose.")
 
 
     if __name__ == "__main__":

@@ -13,7 +13,7 @@ spec:
         app: mcp-dummy
       annotations:
         # Restart the pod when the server source changes
-        checksum/source: "v2"
+        checksum/source: "v3"
     spec:
       containers:
       - name: mcp-dummy
