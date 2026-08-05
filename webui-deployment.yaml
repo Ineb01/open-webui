@@ -22,6 +22,10 @@ spec:
             cpu: "500m"
             memory: "500Mi"
         env:
+        # Temporary: the MCP tool resolution path logs its failures at debug
+        # level only. Drop this once tool calling is confirmed working.
+        - name: GLOBAL_LOG_LEVEL
+          value: "DEBUG"
         - name: OLLAMA_BASE_URL
           value: "http://ollama-service.applications.svc.cluster.local:11434"
         # Ollama Cloud (gemma4) via its OpenAI-compatible endpoint
