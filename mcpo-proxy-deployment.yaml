@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcpo-proxy-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcpo-proxy
+  template:
+    metadata:
+      labels:
+        app: mcpo-proxy
+    spec:
+      containers:
+      - name: mcpo-proxy
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        - name: MCP_SERVER_URL
+          value: "https://n8n.cluster.dphx.eu/mcp/my-calendar/sse"
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            pip install --no-cache-dir mcpo mcp && \
+            exec mcpo --host 0.0.0.0 --port 8000 --server-type sse -- $MCP_SERVER_URL
+        tty: true

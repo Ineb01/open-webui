@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install mcpo and mcp
+RUN pip install --no-cache-dir mcpo mcp
+
+# Default environment variables
+ENV MCP_SERVER_URL="https://n8n.cluster.dphx.eu/mcp/my-calendar/sse"
+ENV MCPO_PORT="8000"
+ENV MCPO_HOST="0.0.0.0"
+
+# Expose the proxy port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"
+
+# Run mcpo with SSE server type
+CMD mcpo --host ${MCPO_HOST} --port ${MCPO_PORT} --server-type sse -- ${MCP_SERVER_URL}

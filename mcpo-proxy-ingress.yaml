@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcpo-proxy-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - mcpo-proxy.cluster.dphx.eu
+    secretName: mcpo-proxy-tls
+  rules:
+  - host: mcpo-proxy.cluster.dphx.eu
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mcpo-proxy-service
+            port:
+              number: 8000
